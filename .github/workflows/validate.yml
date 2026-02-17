@@ -9,7 +9,7 @@ on:
 jobs:
   hacs:
     name: HACS Validation
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
       - name: HACS validation
@@ -19,7 +19,7 @@ jobs:
 
   hassfest:
     name: Hassfest Validation
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
       - name: Hassfest validation
@@ -27,7 +27,7 @@ jobs:
 
   lint:
     name: Lint Python
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
