@@ -45,9 +45,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Start tunnel if enabled
     if entry.data.get("tunnel_enabled", True):
         tunnel = TunnelClient(
-            server_url=entry.data.get(
-                "tunnel_url", f"wss://tun.{_get_domain(entry)}/ws/tunnel"
-            ),
+            server_url=entry.data.get("tunnel_url", f"wss://tun.{_get_domain(entry)}/ws/tunnel"),
             token=entry.data["api_token"],
             local_port=entry.data.get("local_port", 8123),
         )
@@ -84,6 +82,7 @@ def _get_domain(entry: ConfigEntry) -> str:
     # https://api.jethome.cloud -> jethome.cloud
     try:
         from urllib.parse import urlparse
+
         parsed = urlparse(endpoint)
         host = parsed.hostname or "jethome.cloud"
         parts = host.split(".")

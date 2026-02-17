@@ -6,14 +6,13 @@ Uses presigned S3 URLs for direct upload/download.
 
 from __future__ import annotations
 
-import hashlib
 import base64
-import logging
 from collections.abc import AsyncIterator, Callable, Coroutine
+import hashlib
+import logging
 from typing import Any
 
 import aiohttp
-
 from homeassistant.components.backup import BackupAgent, BackupAgentError
 from homeassistant.core import HomeAssistant, callback
 
@@ -84,18 +83,18 @@ class JetHomeCloudBackupAgent(BackupAgent):
         # Upload directly to S3
         try:
             stream = await open_stream()
-            async with aiohttp.ClientSession() as session:
-                async with session.put(
+            async with (
+                aiohttp.ClientSession() as session,
+                session.put(
                     presign["url"],
                     headers=presign.get("headers", {}),
                     data=stream,
                     timeout=aiohttp.ClientTimeout(total=43200),
-                ) as resp:
-                    if resp.status >= 400:
-                        text = await resp.text()
-                        raise BackupAgentError(
-                            f"Upload failed: {resp.status} {text[:200]}"
-                        )
+                ) as resp,
+            ):
+                if resp.status >= 400:
+                    text = await resp.text()
+                    raise BackupAgentError(f"Upload failed: {resp.status} {text[:200]}")
         except BackupAgentError:
             raise
         except Exception as exc:
@@ -124,14 +123,16 @@ class JetHomeCloudBackupAgent(BackupAgent):
             raise BackupAgentError(f"Failed to get download URL: {exc}") from exc
 
         async def _stream() -> AsyncIterator[bytes]:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(
+            async with (
+                aiohttp.ClientSession() as session,
+                session.get(
                     presign["url"],
                     timeout=aiohttp.ClientTimeout(total=43200),
-                ) as resp:
-                    resp.raise_for_status()
-                    async for chunk in resp.content.iter_chunked(65536):
-                        yield chunk
+                ) as resp,
+            ):
+                resp.raise_for_status()
+                async for chunk in resp.content.iter_chunked(65536):
+                    yield chunk
 
         return _stream()
 

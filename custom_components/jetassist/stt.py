@@ -53,8 +53,22 @@ class JetHomeCloudSTT(SpeechToTextEntity):
     def supported_languages(self) -> list[str]:
         """Return supported languages."""
         return [
-            "ru", "en", "de", "fr", "es", "it", "pt", "nl",
-            "pl", "uk", "zh", "ja", "ko", "ar", "tr", "sv",
+            "ru",
+            "en",
+            "de",
+            "fr",
+            "es",
+            "it",
+            "pt",
+            "nl",
+            "pl",
+            "uk",
+            "zh",
+            "ja",
+            "ko",
+            "ar",
+            "tr",
+            "sv",
         ]
 
     @property
@@ -82,9 +96,7 @@ class JetHomeCloudSTT(SpeechToTextEntity):
         """Return supported channels."""
         return [AudioChannels.CHANNEL_MONO]
 
-    async def async_process_audio_stream(
-        self, metadata: SpeechMetadata, stream
-    ) -> SpeechResult:
+    async def async_process_audio_stream(self, metadata: SpeechMetadata, stream) -> SpeechResult:
         """Process audio stream and return transcription."""
         audio_data = b""
         async for chunk in stream:
@@ -93,8 +105,10 @@ class JetHomeCloudSTT(SpeechToTextEntity):
         try:
             # POST to cloud STT API
             import aiohttp
-            async with aiohttp.ClientSession() as session:
-                async with session.post(
+
+            async with (
+                aiohttp.ClientSession() as session,
+                session.post(
                     f"{self._api.endpoint}/api/v1/stt/transcribe",
                     headers=self._api._headers,
                     params={
@@ -102,17 +116,16 @@ class JetHomeCloudSTT(SpeechToTextEntity):
                         "provider": "openai",  # default; configurable later
                     },
                     data={"file": audio_data},
-                ) as resp:
-                    if resp.status == 200:
-                        data = await resp.json()
-                        return SpeechResult(
-                            text=data.get("text", ""),
-                            result=SpeechResultState.SUCCESS,
-                        )
-                    _LOGGER.error("STT API error: %s", resp.status)
+                ) as resp,
+            ):
+                if resp.status == 200:
+                    data = await resp.json()
                     return SpeechResult(
-                        text="", result=SpeechResultState.ERROR
+                        text=data.get("text", ""),
+                        result=SpeechResultState.SUCCESS,
                     )
+                _LOGGER.error("STT API error: %s", resp.status)
+                return SpeechResult(text="", result=SpeechResultState.ERROR)
         except Exception as exc:
             _LOGGER.error("STT processing error: %s", exc)
             return SpeechResult(text="", result=SpeechResultState.ERROR)

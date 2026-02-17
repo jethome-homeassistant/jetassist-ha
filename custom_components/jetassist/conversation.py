@@ -59,9 +59,7 @@ async def async_setup_entry(
 class JetHomeCloudConversationAgent(AbstractConversationAgent):
     """JetAssist LLM as HA Conversation Agent."""
 
-    def __init__(
-        self, hass: HomeAssistant, api: Any, entry_id: str
-    ) -> None:
+    def __init__(self, hass: HomeAssistant, api: Any, entry_id: str) -> None:
         """Initialize."""
         self.hass = hass
         self._api = api
@@ -72,9 +70,7 @@ class JetHomeCloudConversationAgent(AbstractConversationAgent):
         """Return supported languages."""
         return ["ru", "en", "de", "fr", "es"]
 
-    async def async_process(
-        self, user_input: ConversationInput
-    ) -> ConversationResult:
+    async def async_process(self, user_input: ConversationInput) -> ConversationResult:
         """Process a conversation turn."""
         try:
             # Build messages with device context
@@ -89,8 +85,10 @@ class JetHomeCloudConversationAgent(AbstractConversationAgent):
 
             # Send to cloud LLM
             import aiohttp
-            async with aiohttp.ClientSession() as session:
-                async with session.post(
+
+            async with (
+                aiohttp.ClientSession() as session,
+                session.post(
                     f"{self._api.endpoint}/api/v1/chat/completions",
                     headers=self._api._headers,
                     json={
@@ -99,19 +97,16 @@ class JetHomeCloudConversationAgent(AbstractConversationAgent):
                         "temperature": 0.7,
                         "max_tokens": 1024,
                     },
-                ) as resp:
-                    if resp.status != 200:
-                        error = await resp.text()
-                        _LOGGER.error("LLM API error: %s %s", resp.status, error)
-                        response = intent.IntentResponse(
-                            language=user_input.language
-                        )
-                        response.async_set_speech(
-                            "Sorry, I couldn't process your request."
-                        )
-                        return ConversationResult(response=response)
+                ) as resp,
+            ):
+                if resp.status != 200:
+                    error = await resp.text()
+                    _LOGGER.error("LLM API error: %s %s", resp.status, error)
+                    response = intent.IntentResponse(language=user_input.language)
+                    response.async_set_speech("Sorry, I couldn't process your request.")
+                    return ConversationResult(response=response)
 
-                    data = await resp.json()
+                data = await resp.json()
 
             # Handle the response
             choice = data.get("choices", [{}])[0]
@@ -131,30 +126,27 @@ class JetHomeCloudConversationAgent(AbstractConversationAgent):
         except Exception as exc:
             _LOGGER.error("Conversation error: %s", exc)
             response = intent.IntentResponse(language=user_input.language)
-            response.async_set_speech(
-                "An error occurred while processing your request."
-            )
+            response.async_set_speech("An error occurred while processing your request.")
             return ConversationResult(response=response)
 
     def _get_exposed_entities(self) -> list[dict[str, Any]]:
         """Get entities exposed to voice assistants."""
         entities = []
         for state in self.hass.states.async_all():
-            entities.append({
-                "entity_id": state.entity_id,
-                "friendly_name": state.attributes.get("friendly_name", ""),
-                "state": state.state,
-                "domain": state.domain,
-            })
+            entities.append(
+                {
+                    "entity_id": state.entity_id,
+                    "friendly_name": state.attributes.get("friendly_name", ""),
+                    "state": state.state,
+                    "domain": state.domain,
+                }
+            )
         # Limit to first 100 entities to keep prompt size manageable
         return entities[:100]
 
     def _build_system_prompt(self, entities: list[dict[str, Any]]) -> str:
         """Build system prompt with device context."""
-        devices_text = "\n".join(
-            f"- {e['entity_id']}: {e['friendly_name']} (state: {e['state']})"
-            for e in entities
-        )
+        devices_text = "\n".join(f"- {e['entity_id']}: {e['friendly_name']} (state: {e['state']})" for e in entities)
         return (
             "You are a helpful smart home assistant powered by JetAssist.\n"
             "You help the user control their Home Assistant devices.\n\n"

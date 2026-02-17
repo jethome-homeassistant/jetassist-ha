@@ -43,8 +43,22 @@ class JetHomeCloudTTS(TextToSpeechEntity):
     def supported_languages(self) -> list[str]:
         """Return supported languages."""
         return [
-            "ru", "en", "de", "fr", "es", "it", "pt", "nl",
-            "pl", "uk", "zh", "ja", "ko", "ar", "tr", "sv",
+            "ru",
+            "en",
+            "de",
+            "fr",
+            "es",
+            "it",
+            "pt",
+            "nl",
+            "pl",
+            "uk",
+            "zh",
+            "ja",
+            "ko",
+            "ar",
+            "tr",
+            "sv",
         ]
 
     @property
@@ -52,14 +66,14 @@ class JetHomeCloudTTS(TextToSpeechEntity):
         """Return default language."""
         return "ru"
 
-    async def async_get_tts_audio(
-        self, message: str, language: str, options: dict | None = None
-    ) -> tuple[str, bytes]:
+    async def async_get_tts_audio(self, message: str, language: str, options: dict | None = None) -> tuple[str, bytes]:
         """Get TTS audio from JetAssist."""
         try:
             import aiohttp
-            async with aiohttp.ClientSession() as session:
-                async with session.post(
+
+            async with (
+                aiohttp.ClientSession() as session,
+                session.post(
                     f"{self._api.endpoint}/api/v1/tts/synthesize",
                     headers=self._api._headers,
                     json={
@@ -67,12 +81,13 @@ class JetHomeCloudTTS(TextToSpeechEntity):
                         "language": language,
                         "voice": (options or {}).get("voice", "default"),
                     },
-                ) as resp:
-                    if resp.status == 200:
-                        audio = await resp.read()
-                        return ("wav", audio)
-                    _LOGGER.error("TTS API error: %s", resp.status)
-                    return ("wav", b"")
+                ) as resp,
+            ):
+                if resp.status == 200:
+                    audio = await resp.read()
+                    return ("wav", audio)
+                _LOGGER.error("TTS API error: %s", resp.status)
+                return ("wav", b"")
         except Exception as exc:
             _LOGGER.error("TTS processing error: %s", exc)
             return ("wav", b"")

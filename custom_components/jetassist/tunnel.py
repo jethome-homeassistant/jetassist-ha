@@ -8,9 +8,9 @@ connections from the server to localhost:8123 (HA).
 from __future__ import annotations
 
 import asyncio
+from enum import IntEnum
 import logging
 import struct
-from enum import IntEnum
 
 import aiohttp
 
@@ -115,9 +115,7 @@ class TunnelClient:
         if len(data) < HEADER_SIZE:
             return
 
-        channel_id, flag_val, size, extra = struct.unpack(
-            HEADER_FORMAT, data[:HEADER_SIZE]
-        )
+        channel_id, flag_val, size, _extra = struct.unpack(HEADER_FORMAT, data[:HEADER_SIZE])
         payload = data[HEADER_SIZE : HEADER_SIZE + size]
 
         try:
@@ -155,9 +153,7 @@ class TunnelClient:
     async def _open_channel(self, channel_id: bytes, payload: bytes) -> None:
         """Open a new local TCP connection for a channel."""
         try:
-            reader, writer = await asyncio.open_connection(
-                self.local_host, self.local_port
-            )
+            reader, writer = await asyncio.open_connection(self.local_host, self.local_port)
         except OSError as exc:
             _LOGGER.error(
                 "Cannot connect to local HA at %s:%s: %s",
@@ -227,9 +223,7 @@ class _ChannelHandler:
                 data = await self._reader.read(4096)
                 if not data:
                     break
-                await self._client._send_frame(
-                    self.channel_id, Flag.DATA, data
-                )
+                await self._client._send_frame(self.channel_id, Flag.DATA, data)
         except (OSError, asyncio.CancelledError):
             pass
         finally:

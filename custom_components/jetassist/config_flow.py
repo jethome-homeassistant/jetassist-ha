@@ -11,10 +11,9 @@ import logging
 from typing import Any
 
 import aiohttp
-import voluptuous as vol
-
 from homeassistant.config_entries import ConfigFlow, OptionsFlow
 from homeassistant.data_entry_flow import FlowResult
+import voluptuous as vol
 
 from .api import JetHomeCloudAPI
 from .const import DEFAULT_ENDPOINT, DOMAIN
@@ -27,9 +26,7 @@ class JetHomeCloudConfigFlow(ConfigFlow, domain=DOMAIN):
 
     VERSION = 1
 
-    async def async_step_user(
-        self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
+    async def async_step_user(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         """Handle the initial step: choose auth method."""
         if user_input is not None:
             method = user_input.get("auth_method", "token")
@@ -49,9 +46,7 @@ class JetHomeCloudConfigFlow(ConfigFlow, domain=DOMAIN):
             ),
         )
 
-    async def async_step_oauth2(
-        self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
+    async def async_step_oauth2(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         """Handle OAuth2 flow.
 
         Opens browser to Authentik for login, receives token via callback.
@@ -61,9 +56,7 @@ class JetHomeCloudConfigFlow(ConfigFlow, domain=DOMAIN):
         _LOGGER.info("OAuth2 flow not yet implemented, falling back to token")
         return await self.async_step_token()
 
-    async def async_step_token(
-        self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
+    async def async_step_token(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         """Handle manual API token entry."""
         errors: dict[str, str] = {}
 
@@ -118,9 +111,7 @@ class JetHomeCloudOptionsFlow(OptionsFlow):
         """Initialize options flow."""
         self.config_entry = config_entry
 
-    async def async_step_init(
-        self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
+    async def async_step_init(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         """Handle options."""
         if user_input is not None:
             return self.async_create_entry(title="", data=user_input)
@@ -131,9 +122,7 @@ class JetHomeCloudOptionsFlow(OptionsFlow):
                 {
                     vol.Optional(
                         "tunnel_enabled",
-                        default=self.config_entry.data.get(
-                            "tunnel_enabled", True
-                        ),
+                        default=self.config_entry.data.get("tunnel_enabled", True),
                     ): bool,
                 }
             ),
