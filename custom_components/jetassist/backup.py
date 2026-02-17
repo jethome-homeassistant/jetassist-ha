@@ -15,7 +15,6 @@ from typing import Any
 import aiohttp
 
 from homeassistant.components.backup import BackupAgent, BackupAgentError
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 
 from .const import DOMAIN
