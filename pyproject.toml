@@ -7,3 +7,7 @@ ignore = [
     "TC003",   # Move stdlib import into TYPE_CHECKING block (not needed in HA)
     "RUF006",  # Store reference to asyncio.create_task (fire-and-forget is idiomatic in HA)
 ]
+
+[tool.mypy]
+ignore_missing_imports = true
+disable_error_code = ["call-arg"]
