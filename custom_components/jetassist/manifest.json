@@ -1,0 +1,13 @@
+{
+    "domain": "jetassist",
+    "name": "JetAssist",
+    "codeowners": ["@jethome-homeassistant"],
+    "config_flow": true,
+    "dependencies": [],
+    "documentation": "https://docs.jethome.cloud",
+    "integration_type": "service",
+    "iot_class": "cloud_push",
+    "issue_tracker": "https://github.com/jethome-homeassistant/jetassist-ha/issues",
+    "requirements": ["aiohttp>=3.9.0"],
+    "version": "0.1.0"
+}

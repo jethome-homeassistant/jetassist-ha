@@ -1,0 +1,39 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "title": "JetAssist",
+                "description": "Connect your Home Assistant to JetAssist.",
+                "data": {
+                    "endpoint": "Cloud endpoint URL",
+                    "auth_method": "Authentication method"
+                }
+            },
+            "oauth2": {
+                "title": "Login to JetAssist",
+                "description": "You will be redirected to JetAssist to log in."
+            },
+            "token": {
+                "title": "API Token",
+                "description": "Enter your API token from JetAssist.\nGet one at {auth_url} -> Settings -> Tokens & App passwords.",
+                "data": {
+                    "api_token": "API Token",
+                    "tunnel_enabled": "Enable remote access tunnel"
+                }
+            }
+        },
+        "error": {
+            "cannot_connect": "Cannot connect to JetAssist. Check the endpoint and token.",
+            "unknown": "Unexpected error occurred."
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "data": {
+                    "tunnel_enabled": "Enable remote access tunnel"
+                }
+            }
+        }
+    }
+}

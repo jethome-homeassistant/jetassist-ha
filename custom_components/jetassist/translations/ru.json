@@ -1,0 +1,39 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "title": "JetAssist",
+                "description": "Подключите Home Assistant к JetAssist.",
+                "data": {
+                    "endpoint": "URL облачного сервера",
+                    "auth_method": "Метод аутентификации"
+                }
+            },
+            "oauth2": {
+                "title": "Вход в JetAssist",
+                "description": "Вы будете перенаправлены на страницу входа JetAssist."
+            },
+            "token": {
+                "title": "API токен",
+                "description": "Введите API токен из JetAssist.\nПолучить можно на {auth_url} -> Настройки -> Tokens & App passwords.",
+                "data": {
+                    "api_token": "API токен",
+                    "tunnel_enabled": "Включить удалённый доступ (туннель)"
+                }
+            }
+        },
+        "error": {
+            "cannot_connect": "Не удаётся подключиться к JetAssist. Проверьте адрес и токен.",
+            "unknown": "Произошла непредвиденная ошибка."
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "data": {
+                    "tunnel_enabled": "Включить удалённый доступ (туннель)"
+                }
+            }
+        }
+    }
+}
